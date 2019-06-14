@@ -1,0 +1,9 @@
+[?1049h[22;0;0t[1;36r(B[m[4l[?7h[?1h=[39;49m[39;49m[37m[40m[H[2J[37m[40m[J(B[m[39;49m[37m[40m[34d[93m[44mGetting file://localhost/home/shafay/conkyConfigs/trello/file.html[K(B[m[39;49m[37m[40m[A
+
+[3G[37m[40mArrow keys: Up and Down to move.  Right to follow a link; Left to go back.
+ H)elp O)ptions P)rint G)o M)ain screen Q)uit /=search [delete]=history list (B[m[39;49m[37m[40m[34d[93m[44mCommands: Use arrow keys to move, '?' for help, 'q' to quit, '<-' to go back.(B[m[39;49m[37m[40m
+
+[37m[40m[J(B[m[39;49m[37m[40m[39;49m[K[36;1H[?1049l[23;0;0t[?1l>
+
+Exiting via interrupt: 2
+

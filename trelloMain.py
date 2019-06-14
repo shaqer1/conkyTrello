@@ -65,12 +65,12 @@ def main():
     while i < len(listCardPair):
         j=0
         k=0
-        s+=("|{:<50}|{:<50}|".format(listCardPair[i].name,
+        s+=("|{: <50}|{: <50}|".format(listCardPair[i].name,
                     listCardPair[i+1].name)) + '\n'
         s+=('|:------------------------------------------------:|:------------------------------------------------:|') + '\n'
         
         while j<len(listCardPair[i].cardList) or k<len(listCardPair[i+1].cardList):
-            s+=("|{:<50}|{:<50}|".format(' ' if j>=len(listCardPair[i].cardList) else listCardPair[i].cardList[j].name,
+            s+=("|{: <50}|{: <50}|".format(' ' if j>=len(listCardPair[i].cardList) else listCardPair[i].cardList[j].name,
                     ' ' if k>=len(listCardPair[i+1].cardList) else listCardPair[i+1].cardList[k].name)) + '\n'
             if j < len(listCardPair[i].cardList):
                 j+=1
@@ -81,9 +81,10 @@ def main():
 
         #for odd
     
-    print(s)
-    rendered = mistletoe.markdown(s)
-    #print(rendered)
+    #print(s)
+    #print(markdown.markdown(s))
+    #rendered = markdown(s)
+    print(mistletoe.markdown(s))
 
 
 if __name__ == '__main__':
