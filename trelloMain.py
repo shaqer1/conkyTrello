@@ -89,9 +89,3 @@ def main():
 
 if __name__ == '__main__':
    main()
-
-# curl file:/home/shafay/conkyConfigs/trello/file.html
-   # ${offset 15}${font Droid Sans Mono:size=10}${execi 14400 curl file:/home/shafay/conkyConfigs/trello/file.html}
-   #cat ~/conkyConfigs/trello/file.html | lynx -stdin
-   #${offset 15}${font Droid Sans Mono:size=10}${execi 14400 cat /home/shafay/conkyConfigs/trello/file.html | lynx -stdin}
-   # ${offset 15}${font Droid Sans Mono:size=10}${execi 14400 python ~/conkyConfigs/trello/trelloMain.py}
