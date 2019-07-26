@@ -40,51 +40,49 @@ def main():
     }
 
     cardsData = requests.get(url = URLCards.replace('{board}',board), params = PARAMS).json()
+    listsData = requests.get(url = URLLists.replace('{board}',board), params = PARAMS).json()
     #print(cardsData)
 
+    listIDCardsMap = {}
     exclude = ['Done SP 2019', 'Done']
-
-    listsData = requests.get(url = URLLists.replace('{board}',board), params = PARAMS).json()
-    
-    listCardPair = []
     for li in listsData:
-        #print(li['name']+'\n')
         if li['name'] not in exclude:
-            listCardsData = requests.get(url = URLListCard.replace('[idList]',li['id']), params = PARAMS).json()
-            cardList = []
-            for card in listCardsData:
-                x = Card(card['name'],card['idChecklists'])
-                cardList.append(x) 
-            listCardPair.append(BoardList(li['name'],cardList))
-    if len(listCardPair)%2==1:
-            listCardPair.append(BoardList())
-    #print(listCardPair)
-    #todo in markown table
+            x = BoardList(name=li['name'], cardList=[])
+            listIDCardsMap[li['id']] = x
+    for card in cardsData:
+        if card['idList'] in listIDCardsMap.keys():
+            x = Card(card['name'],card['idChecklists'])
+            listIDCardsMap[card['idList']].cardList.append(x)
+
+    listIDCards = sorted(listIDCardsMap.items(), key=lambda kv: (len(kv[1].cardList), kv[0]), reverse=True)
+
+    if len(listIDCards)%2==1:
+            listIDCards.append(['EMPTYLIST',BoardList()])
+    
+    #todo in conky
+
     s = ""
     i = 0
-    while i < len(listCardPair):
+    while i < len(listIDCards):
         j=0
         k=0
-        s+=("|{: <50}|{: <50}|".format(listCardPair[i].name,
-                    listCardPair[i+1].name)) + '\n'
-        s+=('|:------------------------------------------------:|:------------------------------------------------:|') + '\n'
-        
-        while j<len(listCardPair[i].cardList) or k<len(listCardPair[i+1].cardList):
-            s+=("|{: <50}|{: <50}|".format(' ' if j>=len(listCardPair[i].cardList) else listCardPair[i].cardList[j].name,
-                    ' ' if k>=len(listCardPair[i+1].cardList) else listCardPair[i+1].cardList[k].name)) + '\n'
-            if j < len(listCardPair[i].cardList):
+        s+='${font Droid Sans Mono:bold:size=12}${color red}' + ("{b1: <30}{align}{b2}".format(b1=listIDCards[i][1].name,align='${alignr}', b2=listIDCards[i+1][1].name)) + '\n'
+        while j<len(listIDCards[i][1].cardList) or k<len(listIDCards[i+1][1].cardList):
+            s+= '${font Droid Sans Mono:size=10}${color}' +  ("{c1: <30}{align}{c2}".format(c1=' ' if j>=len(listIDCards[i][1].cardList) else listIDCards[i][1].cardList[j].name,align='${alignr}', 
+                    c2=' ' if k>=len(listIDCards[i+1][1].cardList) else listIDCards[i+1][1].cardList[k].name)) + '\n'
+            if j < len(listIDCards[i][1].cardList):
                 j+=1
-            if k<len(listCardPair[i+1].cardList):
+            if k<len(listIDCards[i+1][1].cardList):
                 k+=1
-        s+=('\n\n')
+        #s+=('\n')
         i+=2
 
         #for odd
     
-    #print(s)
+    print(s[0:-2])
     #print(markdown.markdown(s))
     #rendered = markdown(s)
-    print(mistletoe.markdown(s))
+    #print(mistletoe.markdown(s))
 
 
 if __name__ == '__main__':
