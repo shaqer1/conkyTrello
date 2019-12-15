@@ -44,9 +44,9 @@ def main():
     #print(cardsData)
 
     listIDCardsMap = {}
-    exclude = ['Done SP 2019', 'Done']
+    exclude = ['Done ', 'Summer Tasks Completed']
     for li in listsData:
-        if li['name'] not in exclude:
+        if all(substring not in li['name'] for substring in exclude):
             x = BoardList(name=li['name'], cardList=[])
             listIDCardsMap[li['id']] = x
     for card in cardsData:
