@@ -66,7 +66,7 @@ def main():
     while i < len(listIDCards):
         j=0
         k=0
-        s+='${font Droid Sans Mono:bold:size=12}${color red}' + ("{b1: <30}{align}{b2}".format(b1=listIDCards[i][1].name,align='${alignr}', b2=listIDCards[i+1][1].name)) + '\n'
+        s+='${font Droid Sans Mono:bold:size=12}${color red}' + ("{b1: <30}{align}{b2: <1}".format(b1=listIDCards[i][1].name,align='${alignr}', b2=listIDCards[i+1][1].name)) + '\n'
         while j<len(listIDCards[i][1].cardList) or k<len(listIDCards[i+1][1].cardList):
             s+= '${font Droid Sans Mono:size=10}${color}' +  ("{c1: <30}{align}{c2}".format(c1=' ' if j>=len(listIDCards[i][1].cardList) else listIDCards[i][1].cardList[j].name,align='${alignr}', 
                     c2=' ' if k>=len(listIDCards[i+1][1].cardList) else listIDCards[i+1][1].cardList[k].name)) + '\n'
