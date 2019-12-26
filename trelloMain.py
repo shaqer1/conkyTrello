@@ -59,8 +59,6 @@ def main():
     if len(listIDCards)%2==1:
             listIDCards.append(['EMPTYLIST',BoardList()])
     
-    #todo in conky
-
     s = ""
     i = 0
     while i < len(listIDCards):
