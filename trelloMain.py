@@ -41,6 +41,7 @@ def main():
 
     cardsData = requests.get(url = URLCards.replace('{board}',board), params = PARAMS).json()
     listsData = requests.get(url = URLLists.replace('{board}',board), params = PARAMS).json()
+    listsData = list(filter(lambda li: li['closed'] == False, listsData))
     #print(cardsData)
 
     listIDCardsMap = {}
@@ -54,7 +55,9 @@ def main():
             x = Card(card['name'],card['idChecklists'])
             listIDCardsMap[card['idList']].cardList.append(x)
 
+    listIDCardsMap = { k: v for (k,v) in listIDCardsMap.items() if len(v.cardList) >0}
     listIDCards = sorted(listIDCardsMap.items(), key=lambda kv: (len(kv[1].cardList), kv[0]), reverse=True)
+    # filter lists by closed False and size()>0
 
     if len(listIDCards)%2==1:
             listIDCards.append(['EMPTYLIST',BoardList()])
