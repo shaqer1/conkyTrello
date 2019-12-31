@@ -4,7 +4,7 @@ import json
 import mistletoe
 from datetime import datetime, timezone
 from Utils import Utils
-
+from decimal import localcontext, Decimal, ROUND_HALF_UP
 
 board = ''
 APIkey = ''
@@ -24,11 +24,19 @@ class Card:
         self.checklist = [ self.card['badges']['checkItemsChecked'], self.card['badges']['checkItems'] ]
         self.comments = self.card['badges']['comments']
     def processCard(self):
+        #process labels
         s= Utils().addLabels(self.labels) + ' ' + self.name
-        #TODO: due date
-        #TODO: checklist badge completed incomplete
-        #TODO: comments icon: #
-        #TODO: attachment badge
+        # due date 📅
+        s += str(Utils().processDate(self.dueDate))
+        #checklist badge completed incomplete 🗹
+        chkIt, chkItT = self.card['badges']['checkItemsChecked'], self.card['badges']['checkItems']
+        checkListStr = '' if chkItT == 0 else '${font Symbola} 🗹$font ' + str(chkIt) + '/' + str(chkItT)
+        if chkItT != 0:
+            s+= Utils().getColors('red', checkListStr) if Decimal(chkItT/4).to_integral_value(rounding=ROUND_HALF_UP) < chkIt else Utils().getColors('green', checkListStr) if Decimal(3*chkItT/4).to_integral_value(rounding=ROUND_HALF_UP) > chkIt else Utils().getColors('yellow', checkListStr)
+        # comments icon: # 💬
+        s += '' if self.card['badges']['comments'] == 0 else Utils().getColors('green', '${font Symbola} 💬$font ' + str(self.card['badges']['comments']))
+        # attachment badge 📎
+        s += '' if self.card['badges']['attachments'] == 0 else Utils().getColors('green', '${font Symbola} 📎$font ' + str(self.card['badges']['attachments']))
         return s
     name = ''
     labels = []
@@ -78,6 +86,7 @@ def main():
     if len(listIDCards)%2==1:
             listIDCards.append(['EMPTYLIST',BoardList()])
     
+    #todo find algo to group small ones together Optimal stacking
     s = ""
     i = 0
     while i < len(listIDCards):
