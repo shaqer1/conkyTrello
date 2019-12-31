@@ -4,17 +4,17 @@ import pytz
 class Utils:
     def getColors(self, color='NOCOLOR', s=''):
         if color == 'red':
-            return '${color red}' + s + '$color'
+            return '${color red}' + s + '${color}'
         elif color == 'yellow':
-            return '${color yellow}' + s + '$color'
+            return '${color yellow}' + s + '${color}'
         elif color == 'blue':
-            return '${color blue}' + s + '$color'
+            return '${color blue}' + s + '${color}'
         elif color == 'green':
-            return '${color green}' + s + '$color'
+            return '${color green}' + s + '${color}'
         elif color == 'purple':
-            return '${color #6a0dad}' + s + '$color'
+            return '${color #6a0dad}' + s + '${color}'
         elif color == 'orange':
-            return '${color #ffa500}' + s + '$color'
+            return '${color #ffa500}' + s + '${color}'
         elif color == 'NOCOLOR':
             return s
         else:
@@ -25,6 +25,14 @@ class Utils:
             if lb['color'] != None:
                 s += self.getColors(lb['color'], '■')
         return s
+    def getFont(self, fontClass='', s=''):
+        if fontClass == 'title':
+            return '${font DejaVu Sans Mono:bold:size=12}' + s + '${font}'
+        elif fontClass == 'body':
+            return '${font DejaVu Sans Mono:bold:size=10}' + s + '${font}'
+        else:
+            return s
+
     def processDate(self, date):
         s=''
         now=datetime.now()

@@ -30,9 +30,9 @@ class Card:
         s += str(Utils().processDate(self.dueDate))
         #checklist badge completed incomplete 🗹
         chkIt, chkItT = self.card['badges']['checkItemsChecked'], self.card['badges']['checkItems']
-        checkListStr = '' if chkItT == 0 else '${font Symbola} 🗹$font ' + str(chkIt) + '/' + str(chkItT)
+        checkListStr = '' if chkItT == 0 else '${font Symbola} 🗹$font ' + str(chkIt) + '/' + str(chkItT) # 
         if chkItT != 0:
-            s+= Utils().getColors('red', checkListStr) if Decimal(chkItT/4).to_integral_value(rounding=ROUND_HALF_UP) < chkIt else Utils().getColors('green', checkListStr) if Decimal(3*chkItT/4).to_integral_value(rounding=ROUND_HALF_UP) > chkIt else Utils().getColors('yellow', checkListStr)
+            s+= Utils().getColors('green', checkListStr) if Decimal(3*chkItT/4).to_integral_value(rounding=ROUND_HALF_UP) <= chkIt else Utils().getColors('red', checkListStr) if Decimal(chkItT/4).to_integral_value(rounding=ROUND_HALF_UP) > chkIt else Utils().getColors('yellow', checkListStr)
         # comments icon: # 💬
         s += '' if self.card['badges']['comments'] == 0 else Utils().getColors('green', '${font Symbola} 💬$font ' + str(self.card['badges']['comments']))
         # attachment badge 📎
@@ -48,10 +48,22 @@ class BoardList:
         self.name = name
         self.cardList = cardList
         self.li = li
+        self.maxCardW = 0
     name = ''
     cardList = []
+    maxCardW = 0
     li = {}
-
+def getOptimal(q, li1, li2):
+    if len(q) == 0:
+        return li1,li2
+    li = q.pop(0)
+    if li2['maxW'] < li1['maxW']:
+        li2[len(li2)-1] = li[1]
+        li2['maxW']+= len(li[1].cardList) +1
+    else:
+        li1[len(li1)-1] = li[1]
+        li1['maxW']+= len(li[1].cardList) +1
+    return getOptimal(q, li1, li2)
 def main():    
     with open('/home/shafay/conkyConfigs/trello/APIKey.json') as config_file:
         APIKeyData = json.load(config_file)
@@ -67,7 +79,6 @@ def main():
     cardsData = requests.get(url = URLCards.replace('{board}',board), params = PARAMS).json()
     listsData = requests.get(url = URLLists.replace('{board}',board), params = PARAMS).json()
     listsData = list(filter(lambda li: li['closed'] == False, listsData))
-    #print(cardsData)
 
     listIDCardsMap = {}
     for li in listsData:
@@ -78,30 +89,47 @@ def main():
             if not card['dueComplete']:
                 x = Card(card['name'],card)
                 listIDCardsMap[card['idList']].cardList.append(x)
+                listIDCardsMap[card['idList']].maxCardW = listIDCardsMap[card['idList']].maxCardW if len(card['name']) < listIDCardsMap[card['idList']].maxCardW else len(card['name'])
 
     # filter lists by closed False and size()>0
     listIDCardsMap = { k: v for (k,v) in listIDCardsMap.items() if len(v.cardList) > 0}
     listIDCards = sorted(listIDCardsMap.items(), key=lambda kv: (len(kv[1].cardList), kv[0]), reverse=True)
-
-    if len(listIDCards)%2==1:
-            listIDCards.append(['EMPTYLIST',BoardList()])
     
-    #todo find algo to group small ones together Optimal stacking
-    s = ""
-    i = 0
-    while i < len(listIDCards):
-        j=0
-        k=0
-        s+='${font DejaVu Sans Mono:bold:size=12}${color red}' + ("{b1: <30}{align}{b2: <1}".format(b1=listIDCards[i][1].name,align='${alignr}', b2=listIDCards[i+1][1].name)) + '\n'
-        while j<len(listIDCards[i][1].cardList) or k<len(listIDCards[i+1][1].cardList):
-            s+= '${font DejaVu Sans Mono:size=10}${color}' +  ("{c1: <30}{align}{c2}".format(c1=' ' if j>=len(listIDCards[i][1].cardList) else listIDCards[i][1].cardList[j].processCard(),align='${alignr}', 
-                    c2=' ' if k>=len(listIDCards[i+1][1].cardList) else listIDCards[i+1][1].cardList[k].processCard())) + '\n'
-            if j < len(listIDCards[i][1].cardList):
-                j+=1
-            if k<len(listIDCards[i+1][1].cardList):
-                k+=1
-        #s+=('\n')
-        i+=2
+    #Optimal stacking
+    queue = [] 
+    for li in listIDCards:
+        queue.append(li)
+    listIDCards1 = {}
+    listIDCards1['maxW'] = 0
+    listIDCards2 = {}
+    listIDCards2['maxW'] = 0
+    listIDCards1, listIDCards2 = getOptimal(queue, listIDCards1, listIDCards2)
+    maxW = listIDCards2['maxW'] if listIDCards2['maxW'] > listIDCards1['maxW'] else listIDCards1['maxW']
+    del listIDCards1['maxW']
+    del listIDCards2['maxW']
+    s, i = "", 0
+    isTitle1, isTitle2, j, k, l, m = True, True, 0, 0, 0, 0
+    while i<maxW:
+        if isTitle1:
+            if j == len(listIDCards1):
+                s1 = ' '
+            else:
+                s1, isTitle1 = "{b1: <30}".format(b1=Utils().getColors('red', Utils().getFont('title', listIDCards1[j].name))), False
+        else:
+            s1, l = "{c1: <30}".format(c1=Utils().getFont('body', listIDCards1[j].cardList[l].processCard())), l+1
+            if l == len(listIDCards1[j].cardList):
+                isTitle1, j, l = True, j+1, 0
+        if isTitle2:
+            if k == len(listIDCards2):
+                s2 = ' '
+            else:
+                s2, isTitle2 = "{b2: <1}".format(b2=Utils().getColors('red', Utils().getFont('title', listIDCards2[k].name))), False
+        else:
+            s2, m = "{c2}".format(c2=Utils().getFont('body', listIDCards2[k].cardList[m].processCard())), m+1
+            if m == len(listIDCards2[k].cardList):
+                isTitle2, k, m = True, k+1, 0
+        s+= s1 + '${alignr}' + s2 + '\n'
+        i+=1
     
     print(s[0:-2])
 
