@@ -131,7 +131,7 @@ def main():
         s+= s1 + '${alignr}' + s2 + '\n'
         i+=1
     
-    print(s[0:-2])
+    print(s[0:-1])
 
 
 if __name__ == '__main__':

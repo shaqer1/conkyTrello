@@ -38,7 +38,7 @@ conky.config = {
 }
 
 conky.text = [[
-${font DejaVu Sans Mono:size=10}${execpi 3600 python3 ~/conkyConfigs/trello/trelloMain.py}
+${font DejaVu Sans Mono:size=10}${execpi 3600 python3 ./trelloMain.py}
 
 ]]
 
