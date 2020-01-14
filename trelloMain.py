@@ -5,6 +5,8 @@ import mistletoe
 from datetime import datetime, timezone
 from Utils import Utils
 from decimal import localcontext, Decimal, ROUND_HALF_UP
+import os
+import sys
 
 board = ''
 APIkey = ''
@@ -20,14 +22,14 @@ class Card:
         self.name = name
         self.card = card
         self.labels = self.card['labels']
-        self.dueDate = datetime.strptime(self.card['due']+'+0000','%Y-%m-%dT%H:%M:%S.%fZ%z').replace(tzinfo=timezone.utc).astimezone(tz=None)
+        self.dueDate = '' if self.card['due'] == None else datetime.strptime(self.card['due']+'+0000','%Y-%m-%dT%H:%M:%S.%fZ%z').replace(tzinfo=timezone.utc).astimezone(tz=None)
         self.checklist = [ self.card['badges']['checkItemsChecked'], self.card['badges']['checkItems'] ]
         self.comments = self.card['badges']['comments']
     def processCard(self):
         #process labels
         s= Utils().addLabels(self.labels) + ' ' + self.name
         # due date 📅
-        s += str(Utils().processDate(self.dueDate))
+        s += '' if self.dueDate == '' else str(Utils().processDate(self.dueDate))
         #checklist badge completed incomplete 🗹
         chkIt, chkItT = self.card['badges']['checkItemsChecked'], self.card['badges']['checkItems']
         checkListStr = '' if chkItT == 0 else '${font Symbola} 🗹$font ' + str(chkIt) + '/' + str(chkItT) # 
@@ -64,8 +66,8 @@ def getOptimal(q, li1, li2):
         li1[len(li1)-1] = li[1]
         li1['maxW']+= len(li[1].cardList) +1
     return getOptimal(q, li1, li2)
-def main():    
-    with open('/home/shafay/conkyConfigs/trello/APIKey.json') as config_file:
+def main():
+    with open(os.path.join(sys.path[0], 'APIKey.json')) as config_file:
         APIKeyData = json.load(config_file)
 
     APIkey = APIKeyData['key']
